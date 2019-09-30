@@ -38,24 +38,28 @@ public class OoBTele {
         robot.setModeForDTMotors(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         return OoBTeleStatus.OoB_TELE_SUCCESS;
     }
-while (opMode.opModeIsActive())
+    public OoBTeleStatus runSoftware() {
+        while (opMode.opModeIsActive()) {
+            // GAMEPAD 1 CONTROLS:
+            // Left & Right stick: Drive
+            // A:                  Go in fast mode
+            // Y:                  Go in slow mode
 
-    {
-        // GAMEPAD 1 CONTROLS:
-        // Left & Right stick: Drive
-        // A:                  Go in fast mode
-        // Y:                  Go in slow mode
+            moveRobot();
 
-        moveRobot();
+            if (opMode.gamepad1.y) {
+                speedCoef = robot.SPEED_COEFF_SLOW;
+            }
 
-        if (opMode.gamepad1.y) {
-            speedCoef = robot.SPEED_COEFF_SLOW;
+            if (opMode.gamepad1.a) {
+                speedCoef = robot.SPEED_COEFF_FAST;
+            }
         }
-
-        if (opMode.gamepad1.a) {
-            speedCoef = robot.SPEED_COEFF_FAST;
-        }
+        return OoBTeleStatus.OoB_TELE_SUCCESS;
     }
 
+    private void moveRobot(){
+        robot.moveRobotTele(speedCoef, turnCoef);
+    }
 
 }

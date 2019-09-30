@@ -43,8 +43,9 @@ public class OoBTeleOpMode extends LinearOpMode{
 
         // Run the teleop operation, if hardware and software is initialized
         // else do nothing
-        if (status && opModeIsActive()) {
 
+        if (status && opModeIsActive()) {
+            opMode.runSoftware();
         }
     }
 }

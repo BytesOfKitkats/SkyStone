@@ -140,7 +140,7 @@ public abstract class OoBHardwareBot {
     protected abstract int getRFEncCount();
 
     // Teleop driving
-    protected abstract void moveRobotTele(double speedCoef, double turnCoef, boolean endGame);
+    protected abstract void moveRobotTele(double speedCoef, double turnCoef);
 
     /*
      *

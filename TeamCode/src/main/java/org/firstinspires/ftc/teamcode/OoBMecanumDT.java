@@ -317,6 +317,73 @@ public class OoBMecanumDT extends OoBHardwareBot{
         return rightFront.getCurrentPosition();
     }
 
+    protected void moveRobotTele(double speedCoef, double turnCoef) {
+        /*
+         * Gamepad1: Driver 1 controls the robot using the left joystick for throttle and
+         * the right joystick for steering
+         */
+        // NOTE: the left joystick goes negative when pushed upwards
+        double gamePad1LeftStickY = opMode.gamepad1.left_stick_y;
+        double gamePad1LeftStickX = opMode.gamepad1.left_stick_x;
+        double gamePad1RightStickX = opMode.gamepad1.right_stick_x;
+
+        if (speedCoef == SPEED_COEFF_FAST) {
+            gamePad1LeftStickX = Math.pow(gamePad1LeftStickX, 3);
+            gamePad1LeftStickY = Math.pow(gamePad1LeftStickY, 3);
+        }
+
+        else if ((speedCoef == SPEED_COEFF_MED) && (Math.abs(gamePad1LeftStickX) > 0.5)){
+            speedCoef = SPEED_COEFF_FAST;
+        }
+
+        double speedCoefLocal = speedCoef;
+        double motorPowerLF = 0;
+        double motorPowerLB = 0;
+        double motorPowerRF = 0;
+        double motorPowerRB = 0;
+
+        //Log.v("BOK","moveRobot: " + String.format("%.2f", gamePad1LeftStickY) + ", " +
+        //        String.format("%.2f", gamePad1LeftStickX) + ", " +
+        //        String.format("%.2f", gamePad1RightStickX));
+
+        // Run mecanum wheels
+
+        if ((Math.abs(gamePad1LeftStickY) > GAME_STICK_DEAD_ZONE) ||
+                (Math.abs(gamePad1LeftStickY) < -GAME_STICK_DEAD_ZONE) ||
+                (Math.abs(gamePad1LeftStickX) > GAME_STICK_DEAD_ZONE) ||
+                (Math.abs(gamePad1LeftStickX) < -GAME_STICK_DEAD_ZONE)) {
+            motorPowerLF = -gamePad1LeftStickY - (-gamePad1LeftStickX);
+            motorPowerLB = -gamePad1LeftStickY - gamePad1LeftStickX;
+            motorPowerRF = gamePad1LeftStickY - (-gamePad1LeftStickX);
+            motorPowerRB = gamePad1LeftStickY - gamePad1LeftStickX;
+            //Log.v("BOK","LF:" + String.format("%.2f", motorPowerLF*speedCoef) +
+            //       "LB: " + String.format("%.2f", motorPowerLB*speedCoef) +
+            //        "RF: " + String.format("%.2f", motorPowerRF*speedCoef) +
+            //        "RB: " + String.format("%.2f", motorPowerRB*speedCoef));
+        }
+        else if ((gamePad1RightStickX > GAME_STICK_DEAD_ZONE) ||
+                (gamePad1RightStickX < -GAME_STICK_DEAD_ZONE)) {
+            // Right joystick is for turning
+
+            //first and last
+            motorPowerLF = gamePad1RightStickX;
+            motorPowerLB = gamePad1RightStickX;
+            motorPowerRF = gamePad1RightStickX;
+            motorPowerRB = gamePad1RightStickX;
+
+            speedCoefLocal = turnCoef;
+            //Log.v("BOK","Turn: LF:" + String.format("%.2f", motorPowerLF) +
+            //        "LB: " + String.format("%.2f", motorPowerLB) +
+            //        "RF: " + String.format("%.2f", motorPowerRF) +
+            //        "RB: " + String.format("%.2f", motorPowerRB));
+        }
+        setPowerToDTMotors((motorPowerLF * speedCoefLocal),
+                (motorPowerLB * speedCoefLocal),
+                (motorPowerRF * speedCoefLocal),
+                (motorPowerRB * speedCoefLocal), true);
+        //Log.v("BOK", "Moving in MechanumDT");
+    }
+
     protected double getAvgEncCount()
     {
         return (Math.abs(rightBack.getCurrentPosition()) +
@@ -435,4 +502,6 @@ public class OoBMecanumDT extends OoBHardwareBot{
         rightBack.setPower(0);
         Log.v("BOK", "rightBack finished");
     }
+
+
 }
